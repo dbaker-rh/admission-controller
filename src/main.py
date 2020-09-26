@@ -30,7 +30,7 @@ def webhook():
     allowed = False
 
     # Namespace begins with foo?
-    if (request.json['request']['spec']['namespace'][0:3] == "foo"): 
+    if (request.json['request']['namespace'][0:3] == "foo"): 
       allowed = True
 
 
@@ -46,7 +46,7 @@ def webhook():
 
     print ("...")
     print (request.json['apiVersion'])
-    print (request.json['spec']['namespace'])
+    print (request.json['request']['namespace'])
 
     return Response(status=200)
 
