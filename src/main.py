@@ -30,7 +30,7 @@ def webhook():
     allowed = False
 
     # Namespace begins with foo?
-    if (request.json['spec']['namespace'][0:3] == "foo"): 
+    if (request.json['request']['spec']['namespace'][0:3] == "foo"): 
       allowed = True
 
 
@@ -40,7 +40,7 @@ def webhook():
     # Create minimal response object
     # - https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#response
 
-    response = { "apiVersion": request.json['apiVersion'], "kind": "AdmissionReview", "response": { "uid": request.json['uid'], "allowed": allowed } }
+    response = { "apiVersion": request.json['apiVersion'], "kind": "AdmissionReview", "response": { "uid": request.json['request']['uid'], "allowed": allowed } }
 
     return json.dumps(response)
 
