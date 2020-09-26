@@ -1,0 +1,59 @@
+{
+  "kind": "AdmissionReview",
+  "apiVersion": "admission.k8s.io/v1beta1",
+  "request": {
+    "uid": "17269e9c-2472-4ca0-a37b-9e6ba1869dba",
+    "kind": {
+      "group": "foo.example.com",
+      "version": "v1",
+      "kind": "tcrd1v"
+    },
+    "resource": {
+      "group": "foo.example.com",
+      "version": "v1",
+      "resource": "tcrd1s-v"
+    },
+    "requestKind": {
+      "group": "foo.example.com",
+      "version": "v1",
+      "kind": "tcrd1v"
+    },
+    "requestResource": {
+      "group": "foo.example.com",
+      "version": "v1",
+      "resource": "tcrd1s-v"
+    },
+    "name": "will-work",
+    "namespace": "foo-bar",
+    "operation": "CREATE",
+    "userInfo": {
+      "username": "kube:admin",
+      "groups": [
+        "system:cluster-admins",
+        "system:authenticated"
+      ],
+      "extra": {
+        "scopes.authorization.openshift.io": [
+          "user:full"
+        ]
+      }
+    },
+    "object": {
+      "apiVersion": "foo.example.com/v1",
+      "kind": "tcrd1v",
+      "metadata": {
+        "creationTimestamp": "2020-09-26T16:31:35Z",
+        "generation": 1,
+        "name": "will-work",
+        "namespace": "foo-bar",
+        "uid": "fa3a15a3-fa90-4476-888a-d3c7c1bffc72"
+      }
+    },
+    "oldObject": "None",
+    "dryRun": "False",
+    "options": {
+      "kind": "CreateOptions",
+      "apiVersion": "meta.k8s.io/v1"
+    }
+  }
+}
