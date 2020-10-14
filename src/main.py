@@ -60,9 +60,52 @@ def webhook():
 # Just log requests for diagnostics
 #
 
-# TODO -- this is the mutation now -- update URLs etc
 @app.route('/admissionlogger', methods=['POST'])
 def admissionlogger():
+    # debug
+    print ("[DEBUG] : [RECEIVED] :", datetime.now())
+    print (request.json)
+
+    try:
+      kind = request.json['kind']
+    except:
+      print ("[DEBUG] : invalid kind in request")
+      kind = "unknown"
+
+    try:
+      api = request.json['apiVersion']
+    except:
+      print ("[DEBUG] : invalid apiVersion in request")
+      api = "unknown"
+
+    try:
+      uid = request.json['request']['uid']
+    except:
+      print ("[DEBUG] : invalid uid in request")
+      uid = "unknown"
+
+    response = { "apiVersion": api, "kind": kind, "response": { "uid": uid, "allowed": True } }
+
+    print ()
+    print ("[DEBUG] : [RETURNED] :", datetime.now())
+    print (json.dumps(response))
+    print ()
+    return json.dumps(response)
+
+
+
+
+
+#
+# Mutating Webhook
+#
+# - flip imagePullPolicy to Always
+# 
+# -- EXCEPT: if namespace is "^openshift(-.*)?$"
+#
+
+@app.route('/imagepullon', methods=['POST'])
+def imagepullon():
     # debug
     print ("[DEBUG] : [RECEIVED] :", datetime.now())
     print (request.json)
@@ -89,6 +132,9 @@ def admissionlogger():
 
     dopatch = False;
 
+
+    ## TODO: don't patch if namespace= .. or user= ..
+
     try:
       # count how many containers in /request/object/spec/containers ... for each, add the patch 
       # this just sets a patch to edit all of them regardless; we could look at the object to see
@@ -96,9 +142,9 @@ def admissionlogger():
       npod = len( request.json['request']['object']['spec']['containers'] )
 
       dopatch = True;
-      patch = '[ { "op": "replace", "path": "/spec/containers/0/imagePullPolicy", "value": "IfNotPresent" }'
+      patch = '[ { "op": "replace", "path": "/spec/containers/0/imagePullPolicy", "value": "Always" }'
       for x in range (1, npod):
-          patch += ', { "op": "replace", "path": "/spec/containers/' + str(x) + '/imagePullPolicy", "value": "IfNotPresent" } '
+          patch += ', { "op": "replace", "path": "/spec/containers/' + str(x) + '/imagePullPolicy", "value": "Always" } '
       patch += ']'
 
       print ()
@@ -121,19 +167,6 @@ def admissionlogger():
     print (json.dumps(response))
     print ()
     return json.dumps(response)
-
-
-
-
-
-#
-# Mutating Webhook
-#
-# - flip imagePullPolicy to Always
-# 
-# -- EXCEPT: if namespace is "^openshift(-.*)?$"
-#
-
 @app.route('/imagePull-ns', methods=['POST'])
 def imagepullns():
     print(request.json)
