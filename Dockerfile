@@ -1,7 +1,7 @@
 FROM registry.redhat.io/ubi8/python-36
 
 # Install flask
-RUN pip3 install flask
+RUN pip install --upgrade pip && pip3 install flask
 
 # Copy in our code
 COPY src /opt/app-root/src
