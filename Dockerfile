@@ -1,4 +1,7 @@
-FROM registry.redhat.io/ubi8/python-36
+# FROM registry.redhat.io/ubi8/python-36
+
+# Minimal alpine image for size
+FROM python:3-alpine
 
 # Install flask
 RUN pip install --upgrade pip && pip3 install flask
