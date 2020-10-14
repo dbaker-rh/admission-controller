@@ -62,11 +62,17 @@ def webhook():
 @app.route('/admissionlogger', methods=['POST'])
 def admissionlogger():
     # debug
-    print ("[DEBUG] :", datetime.now())
+    print ("[DEBUG] : [RECEIVED] :", datetime.now())
     print (request.json)
 
     # Create minimal response object
     # - https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#response
+    try:
+      kind = request.json['kind']
+    except:
+      print ("[DEBUG] : invalid kind in request")
+      kind = "unknown"
+
     try:
       api = request.json['apiVersion']
     except:
@@ -81,7 +87,9 @@ def admissionlogger():
 
     print (api, uid)
 
-    response = { "apiVersion": api, "kind": "AdmissionReview", "response": { "uid": uid, "alowed": True } }
+    response = { "apiVersion": api, "kind": kind, "response": { "uid": uid, "allowed": True } }
+    print ("[DEBUG] : [RETURNED] :", json.dumps(response))
+    print ()
     return json.dumps(response)
 
 
