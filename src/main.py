@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
 
+#
+#        ###  Proof of Concept only  ###
+#
+# This code is proof of concept only, and is in no
+# way suitable for use in a production environment
+#
+#
+#
+
 from flask import Flask, request, Response, json
-# import json
+from datetime import datetime
+
 
 app = Flask(__name__)
-
 
 @app.route('/')
 @app.route('/ping')
@@ -14,12 +23,13 @@ def root():
 
 
 #
-# Proof of Concept only
+# Simple validating webhook
 #
-# This should verify the request *is* an AdmissionReview
-# and ensure all required data fields are present before attempting
-# to read them.
+# - only accept the request if the namespace begins with "foo"
+# - corresponding admission controller object must be configured to
+#   pass the appropriate requests to this handler
 #
+
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
@@ -36,29 +46,77 @@ def webhook():
 
     # ... other processing may take place here ...
 
-
     # Create minimal response object
     # - https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#response
 
     response = { "apiVersion": request.json['apiVersion'], "kind": "AdmissionReview", "response": { "uid": request.json['request']['uid'], "allowed": allowed } }
-
     return json.dumps(response)
 
-    print ("...")
-    print (request.json['apiVersion'])
-    print (request.json['request']['namespace'])
-
-    return Response(status=200)
 
 
 
+#
+# Just log requests for diagnostics
+#
 
-# Future - this service can run multiple webhooks
-# to follow is an example of a mutating webhook
+@app.route('/admissionlogger', methods=['POST'])
+def admissionlogger():
+    # debug
+    print ("[DEBUG] : ", datetime.now())
+    print (request.json)
 
-@app.route('/mutate', methods=['POST'])
-def mutate():
+    # Create minimal response object
+    # - https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#response
+    try:
+      api = request.json['apiVersion']
+    except:
+      print ("[DEBUG] : invalid apiVersion in request")
+      api = "unknown"
+
+    try:
+      uid = request.json['request']['uid']
+    except:
+      print ("[DEBUG] : invalid uid in request")
+      uid = "unknown"
+
+    response = { "apiVersion": api, "kind": "AdmissionReview", "response": { "uid": uid, "allowed": allowed } }
+    return json.dumps(response)
+
+
+
+
+
+#
+# Mutating Webhook
+#
+# - flip imagePullPolicy to Always
+# 
+# -- EXCEPT: if namespace is "^openshift(-.*)?$"
+#
+
+@app.route('/imagePull-ns', methods=['POST'])
+def imagepullns():
     print(request.json)
     return Response(status=200)
+
+
+
+#
+# Mutating Webhook
+#
+# - flip imagePullPolicy to Always
+#
+# -- EXCEPT: if calling user is kubeadmin
+#
+
+
+
+#
+# Mutating Webhook
+#
+# - flip imagePullPolicy to Always
+#
+# -- EXCEPT: for given registries
+#
 
 
