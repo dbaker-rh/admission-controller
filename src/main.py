@@ -11,6 +11,7 @@
 
 from flask import Flask, request, Response, json
 from datetime import datetime
+import base64
 
 
 app = Flask(__name__)
@@ -59,6 +60,7 @@ def webhook():
 # Just log requests for diagnostics
 #
 
+# TODO -- this is the mutation now -- update URLs etc
 @app.route('/admissionlogger', methods=['POST'])
 def admissionlogger():
     # debug
@@ -85,10 +87,38 @@ def admissionlogger():
       print ("[DEBUG] : invalid uid in request")
       uid = "unknown"
 
-    print (api, uid)
+    dopatch = False;
 
-    response = { "apiVersion": api, "kind": kind, "response": { "uid": uid, "allowed": True } }
-    print ("[DEBUG] : [RETURNED] :", json.dumps(response))
+    try:
+      # count how many containers in /request/object/spec/containers ... for each, add the patch 
+      # this just sets a patch to edit all of them regardless; we could look at the object to see
+      # which, if any, needed to be adjusted to avoid sending a "no-op"
+      npod = len( request.json['request']['object']['spec']['containers'] )
+
+      dopatch = True;
+      patch = '[ { "op": "replace", "path": "/spec/containers/0/imagePullPolicy", "value": "IfNotPresent" }'
+      for x in range (1, npod):
+          patch += ', { "op": "replace", "path": "/spec/containers/' + str(x) + '/imagePullPolicy", "value": "IfNotPresent" } '
+      patch += ']'
+
+      print ()
+      print ("[DEBUG] : [PATCH]")
+      print (patch)
+    except:
+      print ()
+      print ("[DEBUG] : No containers found in request")
+
+
+    # flip string to bytes and back
+    if (dopatch):
+      response = { "apiVersion": api, "kind": kind, "response": { "uid": uid, "allowed": True, "patchType": "JSONPatch", "patch": base64.b64encode(patch.encode()).decode() } }
+    else:
+      response = { "apiVersion": api, "kind": kind, "response": { "uid": uid, "allowed": True } }
+
+
+    print ()
+    print ("[DEBUG] : [RETURNED] :", datetime.now())
+    print (json.dumps(response))
     print ()
     return json.dumps(response)
 
