@@ -79,7 +79,7 @@ def admissionlogger():
       print ("[DEBUG] : invalid uid in request")
       uid = "unknown"
 
-    response = { "apiVersion": api, "kind": "AdmissionReview", "response": { "uid": uid, "allowed": allowed } }
+    response = { "apiVersion": api, "kind": "AdmissionReview", "response": { "uid": uid, "allowed": True } }
     return json.dumps(response)
 
 

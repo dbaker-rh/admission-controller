@@ -9,8 +9,11 @@ COPY src /opt/app-root/src
 # Allow on the fly diags by letting our user edit the .py
 RUN chmod -R g+w /opt/app-root/src
 
-# set default flask app and environment
+# set default flask app
 ENV FLASK_APP main.py
+
+# development mode means the python is reloaded when changed
+ENV FLASK_ENV development
 
 EXPOSE 5000
 
