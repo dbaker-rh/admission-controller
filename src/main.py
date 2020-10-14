@@ -62,7 +62,7 @@ def webhook():
 @app.route('/admissionlogger', methods=['POST'])
 def admissionlogger():
     # debug
-    print ("[DEBUG] : ", datetime.now())
+    print ("[DEBUG] :", datetime.now())
     print (request.json)
 
     # Create minimal response object
@@ -79,7 +79,9 @@ def admissionlogger():
       print ("[DEBUG] : invalid uid in request")
       uid = "unknown"
 
-    response = { "apiVersion": api, "kind": "AdmissionReview", "response": { "uid": uid, "allowed": True } }
+    print (api, uid)
+
+    response = { "apiVersion": api, "kind": "AdmissionReview", "response": { "uid": uid, "alowed": True } }
     return json.dumps(response)
 
 
